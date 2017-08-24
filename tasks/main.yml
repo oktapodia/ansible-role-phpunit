@@ -4,6 +4,11 @@
     php_executable: php
   when: php_executable is not defined
 
+- name: Check if phpunit is installed.
+  stat: "path={{ phpunit_path }}"
+  register: phpunit_bin
+
+
 - name: Extract php version
   command:  bash -c "php -v | grep -Po '[57]\.[0-9]*\.[0-9]*' | grep -Po '^[57]\.[0-9]*'"
   register: php_version_output
@@ -16,25 +21,22 @@
 - debug:
     msg: "PHP version : {{  php_version }}"
 
-- name: Check if phpunit is installed.
-  stat: "path={{ phpunit_path }}"
-  register: phpunit_bin
 
-- name: Set phpunit_url if when 5.3 <= php_version < 5.6.
+- name: Set phpunit_url if php_version when 5.3 – 5.6.
   set_fact:
     phpunit_url: 'https://phar.phpunit.de/phpunit-4.8.phar'
   when: 
     - php_version | version_compare('5.3', '>=') 
     - php_version | version_compare('5.6', '<')  
 
-- name: Set phpunit_url if when 5.6 <= php_version < 7.0.
+- name: Set phpunit_url if php_version when 5.6 - 7.0.
   set_fact:
     phpunit_url: 'https://phar.phpunit.de/phpunit-5.7.phar'
   when: 
     - php_version | version_compare('5.6', '>=')  
     - php_version | version_compare('7.0', '<')  
 
-- name: Set phpunit_url if when 7.0 <= php_version 
+- name: Set phpunit_url if php_version when 7.0 - X.X
   set_fact:
     phpunit_url: 'https://phar.phpunit.de/phpunit-6.3.phar'
   when: 
